@@ -3,8 +3,8 @@ pipeline{
     environment {
         IMAGE_NAME = 'alpinehelloworld'
         IMAGE_TAG = 'latest'
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
-        ID_DOCKER = 'malickfama'
+        // DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        // ID_DOCKER = 'malickfama'
         USER = 'malickfama'
         STAGING = 'env_staging'
         PRODUCTION = 'env_production'
