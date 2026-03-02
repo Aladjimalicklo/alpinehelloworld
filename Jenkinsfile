@@ -1,22 +1,22 @@
-pipline{
-    agent any
+pipeline{
+    // agent any
     environment {
         IMAGE_NAME = 'alpinehelloworld'
         IMAGE_TAG = 'latest'
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
-        ID_DOCKER = 'malickfama'
+        // DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        // ID_DOCKER = 'malickfama'
         USER = 'malickfama'
-        STAGING = env_staging
-        PRODUCTION = env_production
+        STAGING = 'env_staging'
+        PRODUCTION = 'env_production'
     }
-     agent none
+    agent none
     stages{
 
         stage('build image'){
             agent any
             steps{
                 script{
-                    sh 'docker build -t ${USER}/${IMAGE_NAME}:${IMAGE_TAG} .'
+                    sh "docker build -t ${USER}/${IMAGE_NAME}:${IMAGE_TAG} ."
                 }
             }
         }
@@ -25,10 +25,10 @@ pipline{
             agent any
             steps{
                 script{
-                    sh '''
-                        docker run --name ${IMAGE_NAME} -d -p 80:5000 -e PORT = 5000  ${USER}/${IMAGE_NAME}:${IMAGE:TAG}
+                    sh """
+                        docker run --name ${IMAGE_NAME} -d -p 80:5000 -e PORT=5000  ${USER}/${IMAGE_NAME}:${IMAGE_TAG}
                         sleep 5s
-                    '''
+                    """
                 }
             }
         }
@@ -46,18 +46,19 @@ pipline{
             agent any
             steps{
                 script{
-                    sh '''
-                        docker stop ${IMAGE_NAME}
-                        docker rm ${IMAGE_NAME}
+                    sh """
+                        docker stop ${IMAGE_NAME} || true
+                        docker rm ${IMAGE_NAME} || true
 
-                    '''
+                   """
                 }
             }
         }
 
         stage ('push image in staging and deploy it'){
             when{
-                    expression{GIT_BRANCH == 'origin/master'}
+                    // expression{GIT_BRANCH == 'origin/master'}
+                    branch 'master'
             }
             agent any
             environment{
@@ -65,12 +66,12 @@ pipline{
             }
             steps{
                 script{
-                    sh'''
+                    sh"""
                         heroku container:login
                         heroku create $STAGING  || echo "Env alreday exist"
                         heroku container:push -a $STAGING web
                         heroku container: release -a $STAGING web
-                    '''
+                   """
                 }
             }
         }
@@ -78,7 +79,8 @@ pipline{
         stage ('push iamge in prod and deploy it'){
 
             when{
-                expression{'GIT_BRANCH == orgin/master'}
+                // expression{'GIT_BRANCH == orgin/master'}
+                branch 'master'
             }
             agent any
             environment{
@@ -87,12 +89,12 @@ pipline{
 
             steps{
                 script{
-                    sh '''
+                    sh """
                      heroku container:login
                      heroku create $PRODUCTION || echo " env exist"
                      heroku container: push -a $PRODUCTION web
                      heroku container:release -a $PRODUCTION web
-                    '''
+                    """
 
                 }
             } 
