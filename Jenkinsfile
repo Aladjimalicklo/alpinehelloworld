@@ -6,8 +6,8 @@ pipeline{
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
         ID_DOCKER = 'malickfama'
         USER = 'malickfama'
-        STAGING = env_staging
-        PRODUCTION = env_production
+        STAGING = 'env_staging'
+        PRODUCTION = 'env_production'
     }
      agent none
     stages{
