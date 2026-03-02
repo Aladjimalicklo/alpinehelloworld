@@ -1,5 +1,5 @@
 pipeline{
-    agent any
+    // agent any
     environment {
         IMAGE_NAME = 'alpinehelloworld'
         IMAGE_TAG = 'latest'
@@ -9,7 +9,7 @@ pipeline{
         STAGING = 'env_staging'
         PRODUCTION = 'env_production'
     }
-     agent none
+    agent none
     stages{
 
         stage('build image'){
