@@ -8,6 +8,8 @@ pipeline{
         USER = 'malickfama'
         STAGING = 'env_staging'
         PRODUCTION = 'env_production'
+        VPS_USER = 'ubuntu'                        // User de ton VPS
+        VPS_IP = '1.2.3.4'                        // IP de ton VPS
     }
     agent none
     stages{
@@ -79,6 +81,51 @@ pipeline{
                 }
 
             }
+        }
+
+        stage ('deploy on Render'){
+            agent=any
+            when{
+                expression{env.GIT_BRANCH== 'origin/master'}
+            }
+            environment{
+                RENDER_SERVICE_ID =  'srv-d6j5sgfkijhs739c6l3g'
+                RENDER_API_KEY =  credentials('render_api_key')
+            }
+            steps{
+                script{
+                    sh"""
+                        curl -X POST https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys \
+                        -H 'Authorization: Bearer $RENDER_API_KEY' \
+                        -H 'Content-Type: application/json' \
+                        -d '{"clearCache": false}'
+                    """
+                }
+            }
+        }
+
+        stage ('deploy on VPS (production)'){
+            when{
+                expression{  env.GIT_BRANCH == 'origin/prod'}
+            }
+
+            environment{
+                VPS_CREDENTIALS = credentials('vps-ssh-key')
+            }
+
+            steps{
+                script{
+                    sh """
+                        ssh -o StrictHostKeyChecking=no -i $VPS_CREDENTIALS ${VPS_USER}@${VPS_IP } '
+                            docker pull ${USER}/${IMAGE_NAME}:${IMAGE_TAG} &&
+                            docker stop ${IMAGE_NAME} || true &&
+                            docker rm ${IMAGE_NAME} || true &&
+                            docker run -d --name ${IMAGE_NAME} -p 8081:5000 -e PORT=5000  ${USER}/${IMAGE_NAME}:${IMAGE_TAG}
+                        ' 
+                    """
+                }
+            }
+
         }
 
         stage ('push image in staging and deploy it'){
