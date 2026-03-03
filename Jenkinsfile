@@ -62,8 +62,8 @@ pipeline{
 
         stage ('push image in staging and deploy it'){
             when{
-                    // expression{GIT_BRANCH == 'origin/master'}
-                    branch 'master'
+                    expression{env.GIT_BRANCH == 'origin/master'}
+                    // branch 'master'
             }
             agent any
             environment{
@@ -84,8 +84,8 @@ pipeline{
         stage ('push iamge in prod and deploy it'){
 
             when{
-                // expression{'GIT_BRANCH == orgin/master'}
-                branch 'master'
+                expression{env.GIT_BRANCH == 'orgin/master'}
+                // branch 'master'
             }
             agent any
             environment{
