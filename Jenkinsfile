@@ -84,7 +84,7 @@ pipeline{
         }
 
         stage ('deploy on Render'){
-            agent=any
+            agent any
             when{
                 expression{env.GIT_BRANCH== 'origin/master'}
             }
@@ -105,6 +105,7 @@ pipeline{
         }
 
         stage ('deploy on VPS (production)'){
+            agent any
             when{
                 expression{  env.GIT_BRANCH == 'origin/prod'}
             }
