@@ -60,9 +60,30 @@ pipeline{
             }
         }
 
+        stage ('push image in Dockerhub'){
+            agent any
+            when {
+                expression {env.GIT_BRANCH == 'origin/master'}
+            }
+
+            environment {
+                DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+            }
+
+            steps{
+                script{
+                    sh """
+                    echo  $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
+                    docker push ${USER}/${IMAGE_NAME}:${IMAGE_TAG}
+                    """
+                }
+
+            }
+        }
+
         stage ('push image in staging and deploy it'){
             when{
-                    expression{env.GIT_BRANCH == 'origin/master'}
+                    expression{env.GIT_BRANCH == 'origin/staging'}
                     // branch 'master'
             }
             agent any
@@ -75,7 +96,7 @@ pipeline{
                         heroku container:login
                         heroku create $STAGING  || echo "Env alreday exist"
                         heroku container:push -a $STAGING web
-                        heroku container: release -a $STAGING web
+                        heroku container:release -a $STAGING web
                    """
                 }
             }
@@ -84,7 +105,7 @@ pipeline{
         stage ('push iamge in prod and deploy it'){
 
             when{
-                expression{env.GIT_BRANCH == 'orgin/master'}
+                expression{env.GIT_BRANCH == 'orgin/prod'}
                 // branch 'master'
             }
             agent any
@@ -97,7 +118,7 @@ pipeline{
                     sh """
                      heroku container:login
                      heroku create $PRODUCTION || echo " env exist"
-                     heroku container: push -a $PRODUCTION web
+                     heroku container:push -a $PRODUCTION web
                      heroku container:release -a $PRODUCTION web
                     """
 
