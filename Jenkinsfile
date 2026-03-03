@@ -40,7 +40,7 @@ pipeline{
                 script{
                     sh '''
                       sleep 5s 
-                      curl http://host.docker.internal:8081 | grep -q "Hello World!" '
+                      curl http://host.docker.internal:8081 | grep -q "Hello World!" 
                     '''
                     // sh ' curl http://localhost:8081 | grep -q "Hello World!" '
                 }
