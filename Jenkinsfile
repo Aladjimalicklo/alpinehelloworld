@@ -26,7 +26,8 @@ pipeline{
             steps{
                 script{
                     sh """
-                        docker run --name ${IMAGE_NAME} -d -p 80:5000 -e PORT=5000  ${USER}/${IMAGE_NAME}:${IMAGE_TAG}
+                         docker rm -f ${IMAGE_NAME} || true
+                        docker run --name ${IMAGE_NAME} -d -p 8080:5000 -e PORT=5000  ${USER}/${IMAGE_NAME}:${IMAGE_TAG}
                         sleep 5s
                     """
                 }
